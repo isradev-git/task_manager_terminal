@@ -1,2 +1,5 @@
 ID,Descripción,Estado,Prioridad
-1,Tarea 1,False,alta
+1,Esto es una tarea de prueba,False,baja
+2,Esto es otra tarea de prueba,True,media
+3,Esto es la última tarea de prueba,False,alta
+4,Ahora esta se coloca por prioridad,False,alta

@@ -1,7 +1,7 @@
 [
     {
-        "description": "Tarea 1",
+        "description": "Esto es una tarea, con el funcionamiento completo",
         "completed": false,
-        "priority": "alta"
+        "priority": "media"
     }
 ]

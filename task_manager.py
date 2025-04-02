@@ -101,3 +101,36 @@ def import_tasks_from_csv(tasks):
         imported_tasks = [{"description": row["Descripción"], "completed": row["Estado"] == "True", "priority": row["Prioridad"]} for row in reader]
     tasks.extend(imported_tasks)
     console.print("[bold green]Tareas importadas desde tasks.csv[/bold green]")
+
+# Editar una tarea existente
+def edit_task(tasks):
+    if not tasks:
+        console.print("[bold yellow]No hay tareas disponibles para editar[/bold yellow]")
+        return
+
+    # Mostrar las tareas para que el usuario elija cuál editar
+    show_tasks(tasks, sort_by="priority")
+    
+    # Pedir el ID de la tarea a editar
+    task_id = int(Prompt.ask("Ingrese el ID de la tarea a editar", choices=[str(i) for i in range(1, len(tasks) + 1)])) - 1
+    
+    # Mostrar las opciones de edición
+    console.print("\n¿Qué desea editar?")
+    console.print("1. Descripción")
+    console.print("2. Prioridad")
+    console.print("3. Estado (completada/pendiente)")
+    edit_choice = Prompt.ask("Seleccione una opción", choices=["1", "2", "3"])
+    
+    # Editar el campo seleccionado
+    if edit_choice == "1":
+        new_description = Prompt.ask("Ingrese la nueva descripción", default=tasks[task_id]["description"])
+        tasks[task_id]["description"] = new_description
+        console.print("[bold green]Descripción actualizada correctamente[/bold green]")
+    elif edit_choice == "2":
+        new_priority = Prompt.ask("Ingrese la nueva prioridad (alta, media, baja)", choices=["alta", "media", "baja"], default=tasks[task_id]["priority"])
+        tasks[task_id]["priority"] = new_priority
+        console.print("[bold green]Prioridad actualizada correctamente[/bold green]")
+    elif edit_choice == "3":
+        new_status = Prompt.ask("¿Marcar como completada? (s/n)", choices=["s", "n"], default="n")
+        tasks[task_id]["completed"] = (new_status == "s")
+        console.print("[bold green]Estado actualizado correctamente[/bold green]")
