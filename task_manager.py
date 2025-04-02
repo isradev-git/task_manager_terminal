@@ -74,13 +74,20 @@ def search_tasks(tasks):
 
 # Exportar tareas a CSV
 def export_tasks_to_csv(tasks):
-    import csv
-    with open("tasks.csv", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["ID", "Descripción", "Estado", "Prioridad"])
-        for idx, task in enumerate(tasks, start=1):
-            writer.writerow([idx, task["description"], task["completed"], task.get("priority", "N/A")])
-    console.print("[bold green]Tareas exportadas a tasks.csv[/bold green]")
+    if not tasks:
+        console.print("[bold yellow]No hay tareas para exportar.[/bold yellow]")
+        return  # Salimos de la función si no hay tareas
+
+    try:
+        import csv
+        with open("tasks.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["ID", "Descripción", "Estado", "Prioridad"])
+            for idx, task in enumerate(tasks, start=1):
+                writer.writerow([idx, task["description"], task["completed"], task.get("priority", "N/A")])
+        console.print("[bold green]Tareas exportadas a tasks.csv[/bold green]")
+    except Exception as e:
+        console.print(f"[bold red]Error al exportar tareas: {str(e)}[/bold red]")
 
 # Importar tareas desde CSV
 def import_tasks_from_csv(tasks):

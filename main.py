@@ -1,9 +1,9 @@
 from task_manager import load_tasks, save_tasks, add_task, complete_task, delete_task, filter_tasks, search_tasks, export_tasks_to_csv, import_tasks_from_csv
 from ui import show_menu, show_tasks, show_welcome_panel
 from rich.prompt import Prompt
-from rich.console import Console  # Añadimos esta importación para usar Console
+from rich.console import Console
 
-console = Console()  # Creamos una instancia de Console para usar print
+console = Console()
 
 def main():
     # Cargar tareas desde el archivo JSON
@@ -53,6 +53,9 @@ def main():
             search_tasks(tasks)
         elif choice == "6":
             export_tasks_to_csv(tasks)
+            # Añadir una pausa para que el usuario pueda ver el mensaje
+            console.print("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
+            Prompt.ask("")  # Esto espera a que el usuario presione Enter
         elif choice == "7":
             import_tasks_from_csv(tasks)
         elif choice == "8":

@@ -1,22 +1,7 @@
 [
     {
-        "description": "Esto es una tarea",
+        "description": "Tarea 1",
         "completed": false,
-        "priority": "media"
-    },
-    {
-        "description": "Una tarea de prueba 2",
-        "completed": true,
         "priority": "alta"
-    },
-    {
-        "description": "otra tarea",
-        "completed": true,
-        "priority": "baja"
-    },
-    {
-        "description": "jero me pidi\u00f3 una tarea",
-        "completed": false,
-        "priority": "media"
     }
 ]
