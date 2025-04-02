@@ -1,11 +1,21 @@
 [
     {
-        "description": "Hola, esto es una prueba",
+        "description": "Esto es una tarea",
         "completed": false,
         "priority": "media"
     },
     {
-        "description": "Esto es una prueba",
+        "description": "Una tarea de prueba 2",
+        "completed": true,
+        "priority": "alta"
+    },
+    {
+        "description": "otra tarea",
+        "completed": true,
+        "priority": "baja"
+    },
+    {
+        "description": "jero me pidi\u00f3 una tarea",
         "completed": false,
         "priority": "media"
     }

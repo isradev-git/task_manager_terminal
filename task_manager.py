@@ -2,6 +2,7 @@ import json
 import os
 from rich.prompt import Prompt
 from rich.console import Console
+from ui import show_tasks
 
 console = Console()
 
@@ -10,8 +11,12 @@ TASKS_FILE = "tasks.json"
 # Cargar tareas desde el archivo JSON
 def load_tasks():
     if os.path.exists(TASKS_FILE):
-        with open(TASKS_FILE, "r") as file:
-            return json.load(file)
+        try:
+            with open(TASKS_FILE, "r") as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            console.print("[bold red]Error: El archivo tasks.json tiene un formato inválido.[/bold red]")
+            return []
     return []
 
 # Guardar tareas en el archivo JSON
@@ -49,9 +54,9 @@ def delete_task(tasks):
 # Filtrar tareas por estado
 def filter_tasks(tasks, status=None):
     if status == "completed":
-        return [task for task in tasks if task["completed"]]
+        return [task for task in tasks if task.get("completed", False)]
     elif status == "pending":
-        return [task for task in tasks if not task["completed"]]
+        return [task for task in tasks if not task.get("completed", False)]
     return tasks
 
 # Buscar tareas por palabra clave
@@ -60,8 +65,12 @@ def search_tasks(tasks):
     results = [task for task in tasks if query.lower() in task["description"].lower()]
     if results:
         show_tasks(results)
+        console.print("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
+        Prompt.ask("")  # Pausa para que el usuario pueda ver los resultados
     else:
         console.print("[bold yellow]No se encontraron tareas[/bold yellow]")
+        console.print("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
+        Prompt.ask("")  # Pausa incluso si no hay resultados
 
 # Exportar tareas a CSV
 def export_tasks_to_csv(tasks):
