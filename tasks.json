@@ -1,7 +1,12 @@
 [
     {
-        "description": "Esto es una tarea, con el funcionamiento completo",
+        "description": "Esto es otra tarea de prueba",
         "completed": false,
-        "priority": "media"
+        "priority": "baja"
+    },
+    {
+        "description": "Una tarea para que hayan dos",
+        "completed": false,
+        "priority": "alta"
     }
 ]
