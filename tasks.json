@@ -1,12 +1,22 @@
 [
     {
-        "description": "Esto es otra tarea de prueba",
+        "description": "Renovar hosting isradev.dev",
         "completed": false,
-        "priority": "baja"
+        "priority": "media"
     },
     {
-        "description": "Una tarea para que hayan dos",
+        "description": "Actualizar portfolio con nuevos proyectos",
         "completed": false,
         "priority": "alta"
+    },
+    {
+        "description": "Actualizar terminal con nuevos comandos en portfolio",
+        "completed": false,
+        "priority": "media"
+    },
+    {
+        "description": "Subir blog en linkedin",
+        "completed": true,
+        "priority": "baja"
     }
 ]

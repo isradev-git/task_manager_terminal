@@ -47,8 +47,22 @@ def delete_task(tasks):
         console.print("[bold yellow]No hay tareas disponibles[/bold yellow]")
         return
 
-    task_id = int(Prompt.ask("Ingrese el ID de la tarea a eliminar", choices=[str(i) for i in range(1, len(tasks) + 1)])) - 1
-    removed_task = tasks.pop(task_id)
+    # Ordenar las tareas por prioridad para que coincidan con la visualización
+    priority_order = {"alta": 1, "media": 2, "baja": 3}  # Menor número = mayor prioridad
+    sorted_tasks = sorted(tasks, key=lambda x: priority_order.get(x.get("priority", "baja"), 4))
+
+    # Mostrar las tareas ordenadas
+    show_tasks(sorted_tasks, sort_by="priority")
+
+    # Pedir el ID de la tarea a eliminar (basado en la lista ordenada)
+    task_id = int(Prompt.ask("Ingrese el ID de la tarea a eliminar", choices=[str(i) for i in range(1, len(sorted_tasks) + 1)])) - 1
+
+    # Encontrar el índice de la tarea en la lista original
+    task_to_remove = sorted_tasks[task_id]
+    original_index = tasks.index(task_to_remove)
+
+    # Eliminar la tarea de la lista original
+    removed_task = tasks.pop(original_index)
     console.print(f"[bold red]Tarea eliminada: {removed_task['description']}[/bold red]")
 
 # Filtrar tareas por estado
