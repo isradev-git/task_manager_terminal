@@ -1,22 +1,12 @@
 [
     {
-        "description": "Renovar hosting isradev.dev",
-        "completed": false,
-        "priority": "media"
-    },
-    {
-        "description": "Actualizar portfolio con nuevos proyectos",
-        "completed": false,
-        "priority": "alta"
-    },
-    {
-        "description": "Actualizar terminal con nuevos comandos en portfolio",
-        "completed": false,
-        "priority": "media"
-    },
-    {
-        "description": "Subir blog en linkedin",
+        "description": "Esto es una tarea de prioridad medio",
         "completed": true,
-        "priority": "baja"
+        "priority": "media"
+    },
+    {
+        "description": "Esto es una tarea de ejemplo",
+        "completed": true,
+        "priority": "alta"
     }
 ]

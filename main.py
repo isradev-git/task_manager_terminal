@@ -16,12 +16,13 @@ def main():
         print(f"Se cargaron {len(tasks)} tareas desde tasks.json.")
 
     while True:
-        # Mostrar el panel de bienvenida y el menú principal
+        # Mostrar el panel de bienvenida
         show_welcome_panel()
         
-        # Mostrar las tareas ordenadas por prioridad antes de pedir una opción
+        # Siempre mostramos las tareas al inicio del bucle
         show_tasks(tasks, sort_by="priority")
         
+        # Mostrar el menú y obtener la opción del usuario
         choice = show_menu()
 
         if choice == "1":
@@ -48,7 +49,6 @@ def main():
                 show_tasks(tasks, sort_by="priority")
             elif filter_choice == "prioridad":
                 show_tasks(tasks, sort_by="priority")
-            # Añadir una pausa para que el usuario pueda ver las tareas
             console.print("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
             Prompt.ask("")  # Esto espera a que el usuario presione Enter
         elif choice == "5":

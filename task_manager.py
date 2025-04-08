@@ -2,7 +2,7 @@ import json
 import os
 from rich.prompt import Prompt
 from rich.console import Console
-from ui import show_tasks
+from ui import show_tasks, show_welcome_panel  # Añadimos show_welcome_panel aquí
 
 console = Console()
 
@@ -37,8 +37,31 @@ def complete_task(tasks):
         console.print("[bold yellow]No hay tareas disponibles[/bold yellow]")
         return
 
-    task_id = int(Prompt.ask("Ingrese el ID de la tarea a completar", choices=[str(i) for i in range(1, len(tasks) + 1)])) - 1
-    tasks[task_id]["completed"] = True
+    # Limpiar la pantalla para que la selección sea más clara
+    console.clear()
+    show_welcome_panel()
+    
+    # Ordenar las tareas por prioridad para que coincidan con la visualización
+    priority_order = {"alta": 1, "media": 2, "baja": 3}  # Menor número = mayor prioridad
+    sorted_tasks = sorted(tasks, key=lambda x: priority_order.get(x.get("priority", "baja"), 4))
+
+    # Mostrar las tareas ordenadas solo para selección
+    console.print("\n[bold cyan]Seleccione una tarea para completar:[/bold cyan]")
+    show_tasks(sorted_tasks, sort_by="priority")
+
+    # Pedir el ID de la tarea a completar (basado en la lista ordenada)
+    task_id = int(Prompt.ask("Ingrese el ID de la tarea a completar", choices=[str(i) for i in range(1, len(sorted_tasks) + 1)])) - 1
+
+    # Encontrar el índice de la tarea en la lista original
+    task_to_complete = sorted_tasks[task_id]
+    original_index = tasks.index(task_to_complete)
+
+    # Marcar la tarea como completada en la lista original
+    tasks[original_index]["completed"] = True
+    
+    # Limpiar la pantalla y mostrar solo el mensaje de éxito
+    console.clear()
+    show_welcome_panel()
     console.print("[bold green]Tarea marcada como completada[/bold green]")
 
 # Eliminar una tarea
@@ -47,11 +70,16 @@ def delete_task(tasks):
         console.print("[bold yellow]No hay tareas disponibles[/bold yellow]")
         return
 
+    # Limpiar la pantalla para que la selección sea más clara
+    console.clear()
+    show_welcome_panel()
+    
     # Ordenar las tareas por prioridad para que coincidan con la visualización
     priority_order = {"alta": 1, "media": 2, "baja": 3}  # Menor número = mayor prioridad
     sorted_tasks = sorted(tasks, key=lambda x: priority_order.get(x.get("priority", "baja"), 4))
 
-    # Mostrar las tareas ordenadas
+    # Mostrar las tareas ordenadas solo para selección
+    console.print("\n[bold cyan]Seleccione una tarea para eliminar:[/bold cyan]")
     show_tasks(sorted_tasks, sort_by="priority")
 
     # Pedir el ID de la tarea a eliminar (basado en la lista ordenada)
@@ -63,6 +91,10 @@ def delete_task(tasks):
 
     # Eliminar la tarea de la lista original
     removed_task = tasks.pop(original_index)
+    
+    # Limpiar la pantalla y mostrar solo el mensaje de éxito
+    console.clear()
+    show_welcome_panel()
     console.print(f"[bold red]Tarea eliminada: {removed_task['description']}[/bold red]")
 
 # Filtrar tareas por estado
@@ -122,12 +154,20 @@ def edit_task(tasks):
         console.print("[bold yellow]No hay tareas disponibles para editar[/bold yellow]")
         return
 
-    # Mostrar las tareas para que el usuario elija cuál editar
-    show_tasks(tasks, sort_by="priority")
+    # Ordenar las tareas por prioridad para que coincidan con la visualización
+    priority_order = {"alta": 1, "media": 2, "baja": 3}  # Menor número = mayor prioridad
+    sorted_tasks = sorted(tasks, key=lambda x: priority_order.get(x.get("priority", "baja"), 4))
+
+    # Mostrar las tareas ordenadas
+    show_tasks(sorted_tasks, sort_by="priority")
     
-    # Pedir el ID de la tarea a editar
-    task_id = int(Prompt.ask("Ingrese el ID de la tarea a editar", choices=[str(i) for i in range(1, len(tasks) + 1)])) - 1
+    # Pedir el ID de la tarea a editar (basado en la lista ordenada)
+    task_id = int(Prompt.ask("Ingrese el ID de la tarea a editar", choices=[str(i) for i in range(1, len(sorted_tasks) + 1)])) - 1
     
+    # Encontrar el índice de la tarea en la lista original
+    task_to_edit = sorted_tasks[task_id]
+    original_index = tasks.index(task_to_edit)
+
     # Mostrar las opciones de edición
     console.print("\n¿Qué desea editar?")
     console.print("1. Descripción")
@@ -137,14 +177,14 @@ def edit_task(tasks):
     
     # Editar el campo seleccionado
     if edit_choice == "1":
-        new_description = Prompt.ask("Ingrese la nueva descripción", default=tasks[task_id]["description"])
-        tasks[task_id]["description"] = new_description
+        new_description = Prompt.ask("Ingrese la nueva descripción", default=tasks[original_index]["description"])
+        tasks[original_index]["description"] = new_description
         console.print("[bold green]Descripción actualizada correctamente[/bold green]")
     elif edit_choice == "2":
-        new_priority = Prompt.ask("Ingrese la nueva prioridad (alta, media, baja)", choices=["alta", "media", "baja"], default=tasks[task_id]["priority"])
-        tasks[task_id]["priority"] = new_priority
+        new_priority = Prompt.ask("Ingrese la nueva prioridad (alta, media, baja)", choices=["alta", "media", "baja"], default=tasks[original_index]["priority"])
+        tasks[original_index]["priority"] = new_priority
         console.print("[bold green]Prioridad actualizada correctamente[/bold green]")
     elif edit_choice == "3":
         new_status = Prompt.ask("¿Marcar como completada? (s/n)", choices=["s", "n"], default="n")
-        tasks[task_id]["completed"] = (new_status == "s")
+        tasks[original_index]["completed"] = (new_status == "s")
         console.print("[bold green]Estado actualizado correctamente[/bold green]")
