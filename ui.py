@@ -4,358 +4,570 @@ from rich.prompt import Prompt
 from rich.console import Console
 from rich.style import Style
 from rich.rule import Rule
+from rich.columns import Columns
+from rich.text import Text
+from rich.layout import Layout
+from rich.progress import Progress, BarColumn, TextColumn
+from rich.align import Align
 from datetime import datetime
+import time
 
 console = Console()
 
-# Definir un tema de colores
+# Tema de colores moderno con gradientes
 THEME = {
-    "title": Style(color="cyan", bold=True),
-    "success": Style(color="green", bold=True),
-    "error": Style(color="red", bold=True),
-    "warning": Style(color="yellow", bold=True),
-    "info": Style(color="blue", bold=True),
+    "title": Style(color="bright_cyan", bold=True),
+    "success": Style(color="bright_green", bold=True),
+    "error": Style(color="bright_red", bold=True),
+    "warning": Style(color="bright_yellow", bold=True),
+    "info": Style(color="bright_blue", bold=True),
     "priority_high": Style(color="red", bold=True),
     "priority_medium": Style(color="yellow", bold=True),
     "priority_low": Style(color="green", bold=True),
-    "overdue": Style(color="red", bold=True, blink=True),
+    "overdue": Style(color="red", bold=True),
     "deadline_soon": Style(color="yellow", bold=True),
+    "accent": Style(color="magenta", bold=True),
+    "gradient_1": Style(color="cyan"),
+    "gradient_2": Style(color="blue"),
+    "gradient_3": Style(color="magenta"),
 }
 
-# Mostrar el panel de bienvenida
+def create_gradient_text(text, colors=["cyan", "blue", "magenta"]):
+    """
+    Crea texto con efecto de gradiente usando Rich.
+    """
+    result = Text()
+    length = len(text)
+    
+    for i, char in enumerate(text):
+        # Calcular el color basado en la posición
+        color_index = int((i / length) * (len(colors) - 1))
+        color_index = min(color_index, len(colors) - 1)
+        result.append(char, style=colors[color_index])
+    
+    return result
+
+
 def show_welcome_panel():
+    """
+    Panel de bienvenida moderno con animación y diseño atractivo.
+    """
     console.clear()
-    console.print(Panel("[bold cyan]GESTOR DE TAREAS[/bold cyan]", style=THEME["title"], expand=False))
-
-# Mostrar el menú principal
-def show_menu():
-    console.print("\nOpciones:", style=THEME["info"])
-    console.print("1. Agregar tarea", style=THEME["info"])
-    console.print("2. Marcar tarea como completada", style=THEME["info"])
-    console.print("3. Eliminar tarea", style=THEME["info"])
-    console.print("4. Filtrar tareas", style=THEME["info"])
-    console.print("5. Editar tarea", style=THEME["info"])
-    console.print("6. Buscar tareas", style=THEME["info"])
-    console.print("7. Exportar tareas a CSV", style=THEME["info"])
-    console.print("8. Importar tareas desde CSV", style=THEME["info"])
-    console.print("9. Mostrar/Ocultar completadas", style=THEME["info"])
-    console.print("─" * 40, style="dim")
-    console.print("10. 🍅 Iniciar Pomodoro", style="bold green")
-    console.print("11. 📊 Estadísticas Pomodoro", style="bold cyan")
-    console.print("12. ⚙️  Configurar tiempos", style="bold yellow")
-    console.print("─" * 40, style="dim")
-    console.print("13. 📱 Configurar Telegram", style="bold magenta")
-    console.print("─" * 40, style="dim")
-    console.print("14. Salir", style=THEME["info"])
-    return Prompt.ask("Seleccione una opción", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"])
-
-# Función para verificar si una tarea está vencida
-def is_overdue(deadline_str):
+    
+    # Arte ASCII del logo
+    logo = """
+    ╔════════════════════════════════════════════════╗
+    ║                                                ║
+    ║   ████████╗ █████╗ ███████╗██╗  ██╗███████╗   ║
+    ║   ╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝██╔════╝   ║
+    ║      ██║   ███████║███████╗█████╔╝ ███████╗   ║
+    ║      ██║   ██╔══██║╚════██║██╔═██╗ ╚════██║   ║
+    ║      ██║   ██║  ██║███████║██║  ██╗███████║   ║
+    ║      ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝   ║
+    ║                                                ║
+    ║         🚀 Gestor de Tareas Pro v3.0 🚀        ║
+    ║                                                ║
+    ╚════════════════════════════════════════════════╝
     """
-    Verifica si una fecha límite ya pasó.
-    Retorna True si la fecha ya pasó, False en caso contrario.
-    """
-    if not deadline_str:
-        return False
     
-    try:
-        deadline = datetime.strptime(deadline_str, "%d/%m/%Y")
-        today = datetime.now()
-        return deadline.date() < today.date()
-    except ValueError:
-        return False
-
-# Función para verificar si una tarea está próxima a vencer (3 días o menos)
-def is_deadline_soon(deadline_str):
-    """
-    Verifica si una fecha límite está próxima (dentro de 3 días).
-    Retorna True si faltan 3 días o menos, False en caso contrario.
-    """
-    if not deadline_str:
-        return False
-    
-    try:
-        deadline = datetime.strptime(deadline_str, "%d/%m/%Y")
-        today = datetime.now()
-        days_until_deadline = (deadline.date() - today.date()).days
-        return 0 <= days_until_deadline <= 3
-    except ValueError:
-        return False
-
-# Nueva función: Obtener texto descriptivo de los días restantes
-def get_days_remaining_text(deadline_str):
-    """
-    Convierte los días hasta la fecha límite en un texto legible.
-    
-    Ejemplos de salida:
-    - "Vencida hace 3 días" (si pasó hace 3 días)
-    - "¡Hoy!" (si vence hoy)
-    - "Mañana" (si vence mañana)
-    - "En 5 días" (si faltan 5 días)
-    - "" (si no hay fecha)
-    
-    Este texto se mostrará junto a la fecha para mayor claridad.
-    """
-    if not deadline_str:
-        return ""
-    
-    try:
-        deadline = datetime.strptime(deadline_str, "%d/%m/%Y")
-        today = datetime.now()
-        days_difference = (deadline.date() - today.date()).days
-        
-        # Casos especiales con texto más descriptivo
-        if days_difference < 0:
-            # Tarea vencida
-            days_overdue = abs(days_difference)
-            if days_overdue == 1:
-                return "Vencida ayer"
-            else:
-                return f"Vencida hace {days_overdue} días"
-        elif days_difference == 0:
-            return "¡Hoy!"
-        elif days_difference == 1:
-            return "Mañana"
-        elif days_difference == 2:
-            return "Pasado mañana"
-        else:
-            # Fecha futura normal
-            return f"En {days_difference} días"
-    
-    except ValueError:
-        return ""
-
-# Función para formatear la fecha con indicadores visuales Y días restantes
-def format_deadline(deadline_str, completed):
-    """
-    Formatea la fecha límite con colores, iconos Y días restantes.
-    
-    Formato: [Icono] Fecha (Días restantes)
-    Ejemplo: "⚠ 22/10/2024 (Vencida hace 1 día)"
-    """
-    if not deadline_str:
-        return "[dim]Sin fecha[/dim]"
-    
-    # Obtenemos el texto de días restantes
-    days_text = get_days_remaining_text(deadline_str)
-    
-    # Si la tarea está completada, mostramos en verde con días
-    if completed:
-        if days_text:
-            return f"[green]{deadline_str} ({days_text})[/green]"
-        return f"[green]{deadline_str}[/green]"
-    
-    # Si está vencida, mostramos en rojo parpadeante
-    if is_overdue(deadline_str):
-        return f"[red bold blink]⚠ {deadline_str} ({days_text})[/red bold blink]"
-    
-    # Si está próxima a vencer (3 días o menos)
-    if is_deadline_soon(deadline_str):
-        return f"[yellow bold]⏰ {deadline_str} ({days_text})[/yellow bold]"
-    
-    # Fecha normal - mostramos con días restantes
-    return f"[white]{deadline_str} ({days_text})[/white]"
-
-# Función auxiliar para obtener días hasta la fecha límite
-def get_days_until_deadline(deadline_str):
-    """
-    Calcula cuántos días faltan hasta la fecha límite.
-    Retorna un número (negativo si está vencida, infinito si no hay fecha).
-    """
-    if not deadline_str:
-        return float('inf')
-    
-    try:
-        deadline = datetime.strptime(deadline_str, "%d/%m/%Y")
-        today = datetime.now()
-        days_difference = (deadline.date() - today.date()).days
-        return days_difference
-    except ValueError:
-        return float('inf')
-
-# Función para ordenar tareas por prioridad y fecha límite
-def sort_tasks_by_priority_and_deadline(tasks):
-    """
-    Ordena las tareas por prioridad primero, luego por fecha límite.
-    """
-    priority_order = {"alta": 1, "media": 2, "baja": 3}
-    
-    sorted_tasks = sorted(
-        tasks,
-        key=lambda task: (
-            priority_order.get(task.get("priority", "baja"), 4),
-            get_days_until_deadline(task.get("deadline"))
-        )
+    # Panel principal con gradiente
+    welcome_panel = Panel(
+        Align.center(Text(logo, style="bright_cyan")),
+        border_style="bright_cyan",
+        padding=(0, 2)
     )
     
-    return sorted_tasks
-
-# Nueva función: Contar tareas urgentes
-def count_urgent_tasks(tasks):
-    """
-    Cuenta cuántas tareas urgentes hay (vencidas o por vencer en 3 días).
-    Solo cuenta las tareas NO completadas.
+    console.print(welcome_panel)
     
-    Retorna una tupla: (tareas_vencidas, tareas_proximas, total_urgentes)
+    # Información adicional
+    current_time = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+    info_text = Text()
+    info_text.append("📅 ", style="bright_yellow")
+    info_text.append(current_time, style="dim")
+    info_text.append("  |  ", style="dim")
+    info_text.append("👤 ", style="bright_green")
+    info_text.append("@glitchbane", style="bright_cyan")
+    
+    console.print(Align.center(info_text))
+    console.print()
+
+
+def show_dashboard(tasks):
     """
-    overdue_count = 0
-    soon_count = 0
+    Muestra un dashboard visual con estadísticas y resumen.
+    """
+    # Calcular estadísticas
+    total_tasks = len(tasks)
+    completed = len([t for t in tasks if t.get("completed", False)])
+    pending = total_tasks - completed
+    
+    # Contar por prioridad
+    high_priority = len([t for t in tasks if t.get("priority") == "alta" and not t.get("completed")])
+    medium_priority = len([t for t in tasks if t.get("priority") == "media" and not t.get("completed")])
+    low_priority = len([t for t in tasks if t.get("priority") == "baja" and not t.get("completed")])
+    
+    # Tareas urgentes (vencidas o próximas)
+    from datetime import date, timedelta
+    today = date.today()
+    urgent_count = 0
     
     for task in tasks:
-        # Solo contamos tareas no completadas
-        if not task.get("completed", False):
-            deadline = task.get("deadline")
-            
-            if is_overdue(deadline):
-                overdue_count += 1
-            elif is_deadline_soon(deadline):
-                soon_count += 1
+        if task.get("completed"):
+            continue
+        deadline = task.get("deadline")
+        if deadline:
+            try:
+                deadline_date = datetime.strptime(deadline, "%d/%m/%Y").date()
+                days_until = (deadline_date - today).days
+                if days_until <= 3:
+                    urgent_count += 1
+            except:
+                pass
     
-    total_urgent = overdue_count + soon_count
-    return overdue_count, soon_count, total_urgent
+    # Crear tarjetas de estadísticas
+    cards = []
+    
+    # Card 1: Total
+    card1 = Panel(
+        Align.center(
+            f"[bold bright_cyan]{total_tasks}[/bold bright_cyan]\n"
+            f"[dim]Total Tareas[/dim]"
+        ),
+        border_style="bright_cyan",
+        width=20
+    )
+    cards.append(card1)
+    
+    # Card 2: Pendientes
+    card2 = Panel(
+        Align.center(
+            f"[bold bright_yellow]{pending}[/bold bright_yellow]\n"
+            f"[dim]Pendientes[/dim]"
+        ),
+        border_style="bright_yellow",
+        width=20
+    )
+    cards.append(card2)
+    
+    # Card 3: Completadas
+    card3 = Panel(
+        Align.center(
+            f"[bold bright_green]{completed}[/bold bright_green]\n"
+            f"[dim]Completadas[/dim]"
+        ),
+        border_style="bright_green",
+        width=20
+    )
+    cards.append(card3)
+    
+    # Card 4: Urgentes
+    card4 = Panel(
+        Align.center(
+            f"[bold bright_red]{urgent_count}[/bold bright_red]\n"
+            f"[dim]Urgentes[/dim]"
+        ),
+        border_style="bright_red",
+        width=20
+    )
+    cards.append(card4)
+    
+    # Mostrar tarjetas en columnas
+    console.print(Columns(cards, equal=True, expand=True))
+    console.print()
+    
+    # Barra de progreso
+    if total_tasks > 0:
+        percentage = int((completed / total_tasks) * 100)
+        
+        progress_panel = Panel(
+            f"[bold]Progreso General:[/bold]\n\n"
+            f"{'█' * (percentage // 2)}{'░' * (50 - percentage // 2)} {percentage}%\n\n"
+            f"[dim]{completed} de {total_tasks} tareas completadas[/dim]",
+            title="📊 Estadísticas",
+            border_style="bright_magenta",
+            padding=(1, 2)
+        )
+        console.print(progress_panel)
+        console.print()
 
-# Nueva función: Mostrar panel de estadísticas urgentes
-def show_urgent_tasks_panel(tasks):
-    """
-    Muestra un panel con el contador de tareas urgentes.
-    Solo se muestra si hay tareas urgentes.
-    
-    Ejemplo:
-    ╭─────────────────────────────────────╮
-    │ ⚠️  TIENES 5 TAREAS URGENTES        │
-    │ • 2 tareas vencidas                 │
-    │ • 3 tareas próximas a vencer        │
-    ╰─────────────────────────────────────╯
-    """
-    overdue, soon, total = count_urgent_tasks(tasks)
-    
-    # Solo mostramos el panel si hay tareas urgentes
-    if total > 0:
-        # Construimos el mensaje
-        if total == 1:
-            message = "⚠️  TIENES 1 TAREA URGENTE\n"
-        else:
-            message = f"⚠️  TIENES {total} TAREAS URGENTES\n"
-        
-        # Añadimos detalles
-        if overdue > 0:
-            if overdue == 1:
-                message += "• 1 tarea vencida\n"
-            else:
-                message += f"• {overdue} tareas vencidas\n"
-        
-        if soon > 0:
-            if soon == 1:
-                message += "• 1 tarea próxima a vencer"
-            else:
-                message += f"• {soon} tareas próximas a vencer"
-        
-        # Mostramos el panel en rojo si hay vencidas, amarillo si solo hay próximas
-        panel_style = "bold red" if overdue > 0 else "bold yellow"
-        console.print(Panel(message, style=panel_style, expand=False))
-        console.print()  # Espacio después del panel
 
-# Mostrar las tareas en una tabla con separadores visuales
+def show_menu():
+    """
+    Menú principal con diseño moderno y organizado.
+    """
+    # Crear tabla para el menú
+    menu_table = Table.grid(padding=(0, 2))
+    menu_table.add_column(style="dim", justify="right")
+    menu_table.add_column(style="bold")
+    
+    # Sección: Gestión de Tareas
+    console.print(Panel(
+        "[bold bright_cyan]📋 GESTIÓN DE TAREAS[/bold bright_cyan]",
+        border_style="bright_cyan"
+    ))
+    
+    menu_table.add_row("1", "➕ Agregar tarea")
+    menu_table.add_row("2", "✅ Marcar como completada")
+    menu_table.add_row("3", "🗑️  Eliminar tarea")
+    menu_table.add_row("4", "🔍 Filtrar tareas")
+    menu_table.add_row("5", "✏️  Editar tarea")
+    menu_table.add_row("6", "🔎 Buscar tareas")
+    
+    console.print(menu_table)
+    console.print()
+    
+    # Sección: Importar/Exportar
+    console.print(Panel(
+        "[bold bright_yellow]💾 IMPORTAR / EXPORTAR[/bold bright_yellow]",
+        border_style="bright_yellow"
+    ))
+    
+    import_export_table = Table.grid(padding=(0, 2))
+    import_export_table.add_column(style="dim", justify="right")
+    import_export_table.add_column(style="bold")
+    import_export_table.add_row("7", "📤 Exportar a CSV")
+    import_export_table.add_row("8", "📥 Importar desde CSV")
+    
+    console.print(import_export_table)
+    console.print()
+    
+    # Sección: Productividad
+    console.print(Panel(
+        "[bold bright_green]🍅 PRODUCTIVIDAD[/bold bright_green]",
+        border_style="bright_green"
+    ))
+    
+    productivity_table = Table.grid(padding=(0, 2))
+    productivity_table.add_column(style="dim", justify="right")
+    productivity_table.add_column(style="bold")
+    productivity_table.add_row("9", "👁️  Mostrar/Ocultar completadas")
+    productivity_table.add_row("10", "🍅 Iniciar Pomodoro")
+    productivity_table.add_row("11", "📊 Estadísticas Pomodoro")
+    
+    console.print(productivity_table)
+    console.print()
+    
+    # Sección: Configuración
+    console.print(Panel(
+        "[bold bright_magenta]⚙️  CONFIGURACIÓN[/bold bright_magenta]",
+        border_style="bright_magenta"
+    ))
+    
+    config_table = Table.grid(padding=(0, 2))
+    config_table.add_column(style="dim", justify="right")
+    config_table.add_column(style="bold")
+    config_table.add_row("12", "⏱️  Configurar tiempos Pomodoro")
+    config_table.add_row("13", "📱 Configurar Telegram")
+    
+    console.print(config_table)
+    console.print()
+    
+    # Salir
+    console.print(Rule(style="dim"))
+    exit_table = Table.grid(padding=(0, 2))
+    exit_table.add_column(style="dim", justify="right")
+    exit_table.add_column(style="bold red")
+    exit_table.add_row("14", "🚪 Salir")
+    console.print(exit_table)
+    
+    console.print()
+    
+    return Prompt.ask(
+        "[bold bright_cyan]➤[/bold bright_cyan] Seleccione una opción",
+        choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"]
+    )
+
+
 def show_tasks(tasks, sort_by=None, show_completed=False):
     """
-    Muestra las tareas en una tabla con formato rico.
-    
-    CARACTERÍSTICAS:
-    1. Muestra días restantes junto a cada fecha
-    2. Añade separadores visuales entre diferentes prioridades
-    3. Muestra panel de contador de tareas urgentes al inicio
-    4. NUEVO: Indica si las tareas completadas están ocultas
-    
-    Parámetros:
-    - tasks: lista de tareas a mostrar
-    - sort_by: mantenido por compatibilidad (ya no se usa)
-    - show_completed: True si se están mostrando completadas, False si están ocultas
+    Muestra las tareas con diseño moderno tipo tarjetas.
     """
     # Primero mostramos el panel de tareas urgentes (si las hay)
     show_urgent_tasks_panel(tasks)
     
-    # Ordenamos las tareas por prioridad y fecha límite
+    # Ordenamos las tareas
     sorted_tasks = sort_tasks_by_priority_and_deadline(tasks)
     
-    # Si no hay tareas, mostramos un mensaje
+    # Si no hay tareas
     if not sorted_tasks:
-        console.print("[dim]No hay tareas para mostrar[/dim]")
+        empty_panel = Panel(
+            Align.center(
+                "[dim]📭 No hay tareas para mostrar[/dim]\n\n"
+                "[bright_cyan]¡Comienza agregando una nueva tarea![/bright_cyan]"
+            ),
+            border_style="dim",
+            padding=(2, 4)
+        )
+        console.print(empty_panel)
         return
     
-    # Diccionario para asignar colores a las prioridades
-    priority_styles = {
-        "alta": THEME["priority_high"],
-        "media": THEME["priority_medium"],
-        "baja": THEME["priority_low"]
-    }
+    # Crear tabla moderna
+    table = Table(
+        show_header=True,
+        header_style="bold bright_cyan",
+        border_style="bright_blue",
+        row_styles=["", "dim"],
+        padding=(0, 1)
+    )
     
-    # Variable para rastrear la prioridad anterior (para separadores)
-    previous_priority = None
+    table.add_column("ID", style="dim", width=4, justify="center")
+    table.add_column("", width=2, justify="center")  # Icono estado
+    table.add_column("Tarea", style="bold", width=35)
+    table.add_column("Prioridad", justify="center", width=12)
+    table.add_column("Fecha Límite", justify="center", width=20)
+    table.add_column("🍅", justify="center", width=5)
     
-    # Creamos la tabla inicial
-    table = Table(title="Gestor de Tareas", show_header=True, header_style=THEME["title"])
-    table.add_column("ID", style="dim", width=6)
-    table.add_column("Tarea", style="cyan", width=25)
-    table.add_column("Estado", justify="center", style="green", width=8)
-    table.add_column("Prioridad", justify="center", style="yellow", width=10)
-    table.add_column("Fecha Límite", justify="left", style="white", width=30)
-    table.add_column("🍅", justify="center", style="green", width=5)  # Nueva columna de pomodoros
+    # Variables para separadores
+    last_priority = None
     
-    # Iteramos sobre las tareas ordenadas
     for idx, task in enumerate(sorted_tasks, start=1):
-        current_priority = task.get("priority", "baja")
-        
-        # SEPARADOR VISUAL: Si cambió la prioridad, añadimos una línea separadora
-        if previous_priority is not None and previous_priority != current_priority:
-            # Añadimos una fila vacía como separador
-            table.add_row("", "", "", "", "", end_section=True)
-        
-        # Actualizamos la prioridad anterior
-        previous_priority = current_priority
-        
-        # Preparamos los datos de la fila
-        status = "[✓]" if task["completed"] else "[ ]"
+        description = task.get("description", "Sin descripción")
+        completed = task.get("completed", False)
         priority = task.get("priority", "baja")
         deadline = task.get("deadline")
-        
-        # Formateamos la fecha con días restantes
-        formatted_deadline = format_deadline(deadline, task["completed"])
-        
-        # Obtener número de pomodoros completados
         pomodoros = task.get("pomodoros_completed", 0)
-        pomodoros_text = str(pomodoros) if pomodoros > 0 else "[dim]-[/dim]"
         
-        # Estilo de la fila según prioridad
-        row_style = priority_styles.get(priority, "white")
+        # Añadir separador visual entre prioridades
+        if last_priority and last_priority != priority:
+            table.add_row("", "", "", "", "", "", end_section=True)
+        last_priority = priority
         
-        # Si la tarea está vencida y no completada, usamos estilo de advertencia
-        if is_overdue(deadline) and not task["completed"]:
-            row_style = THEME["overdue"]
+        # Icono de estado
+        status_icon = "✅" if completed else "⭕"
         
-        # Añadimos la fila a la tabla (ahora con pomodoros)
+        # Color según prioridad
+        priority_colors = {
+            "alta": "[bold red]",
+            "media": "[bold yellow]",
+            "baja": "[bold green]"
+        }
+        priority_color = priority_colors.get(priority, "[white]")
+        
+        # Formato de prioridad con icono
+        priority_icons = {
+            "alta": "🔴",
+            "media": "🟡",
+            "baja": "🟢"
+        }
+        priority_icon = priority_icons.get(priority, "⚪")
+        priority_text = f"{priority_icon} {priority.upper()}"
+        
+        # Formatear fecha
+        formatted_deadline = format_deadline(deadline, completed)
+        
+        # Pomodoros
+        pomodoros_text = f"{pomodoros}" if pomodoros > 0 else "[dim]-[/dim]"
+        
+        # Estilo de la descripción
+        if completed:
+            description = f"[dim strikethrough]{description}[/dim strikethrough]"
+        else:
+            description = f"{priority_color}{description}[/{priority_color.strip('[]')}]"
+        
+        # Añadir fila
         table.add_row(
             str(idx),
-            task["description"],
-            status,
-            priority,
+            status_icon,
+            description,
+            priority_text,
             formatted_deadline,
-            pomodoros_text,  # Nueva columna
-            style=row_style
+            pomodoros_text
         )
     
-    # Mostramos la tabla
-    console.print(table)
+    # Panel contenedor para la tabla
+    table_panel = Panel(
+        table,
+        title="[bold bright_cyan]📋 Tus Tareas[/bold bright_cyan]",
+        border_style="bright_cyan",
+        padding=(1, 2)
+    )
     
-    # Leyenda actualizada
-    console.print("\n[dim]Leyenda:[/dim]")
-    console.print("[dim]⚠ = Tarea vencida | ⏰ = Vence pronto (3 días o menos)[/dim]")
-    console.print("[dim]Las líneas separan diferentes niveles de prioridad[/dim]")
+    console.print(table_panel)
+    console.print()
     
-    # NUEVO: Indicador de estado de tareas completadas
+    # Leyenda
+    legend = (
+        "[dim]Leyenda:[/dim] "
+        "⚠️ Vencida | "
+        "⏰ Vence pronto | "
+        "🍅 Pomodoros completados"
+    )
+    console.print(Align.center(legend))
+    
+    # Indicador de completadas ocultas
     if not show_completed:
-        # Contamos cuántas completadas hay en total
         completed_count = len([t for t in tasks if t.get("completed", False)])
         if completed_count > 0:
-            console.print(f"\n[dim]💡 Hay {completed_count} tarea(s) completada(s) oculta(s). Usa la opción 9 para verlas.[/dim]")
+            console.print()
+            info_panel = Panel(
+                f"[dim]💡 Hay [bold]{completed_count}[/bold] tarea(s) completada(s) oculta(s).[/dim]\n"
+                f"[bright_cyan]→ Usa la opción 9 para verlas[/bright_cyan]",
+                border_style="dim",
+                padding=(0, 2)
+            )
+            console.print(info_panel)
     else:
-        console.print("\n[dim]✅ Mostrando tareas completadas[/dim]")
+        console.print()
+        console.print(Align.center("[bright_green]✅ Mostrando tareas completadas[/bright_green]"))
+    
+    console.print()
+
+
+def show_urgent_tasks_panel(tasks):
+    """
+    Panel destacado para tareas urgentes.
+    """
+    from datetime import date, timedelta
+    
+    today = date.today()
+    urgent_tasks = []
+    overdue_tasks = []
+    
+    for task in tasks:
+        if task.get("completed"):
+            continue
+        
+        deadline = task.get("deadline")
+        if not deadline:
+            continue
+        
+        try:
+            deadline_date = datetime.strptime(deadline, "%d/%m/%Y").date()
+            days_until = (deadline_date - today).days
+            
+            if days_until < 0:
+                overdue_tasks.append(task)
+            elif days_until <= 3:
+                urgent_tasks.append(task)
+        except:
+            continue
+    
+    if overdue_tasks or urgent_tasks:
+        # Construir mensaje
+        message = Text()
+        
+        if overdue_tasks:
+            message.append("⚠️  ", style="bold red")
+            message.append(f"{len(overdue_tasks)} tarea(s) vencida(s)", style="bold red")
+        
+        if overdue_tasks and urgent_tasks:
+            message.append(" | ", style="dim")
+        
+        if urgent_tasks:
+            message.append("⏰ ", style="bold yellow")
+            message.append(f"{len(urgent_tasks)} tarea(s) próxima(s) a vencer", style="bold yellow")
+        
+        # Panel de alerta
+        alert_panel = Panel(
+            Align.center(message),
+            title="[bold red blink]🚨 ATENCIÓN 🚨[/bold red blink]",
+            border_style="bold red",
+            padding=(1, 2)
+        )
+        
+        console.print(alert_panel)
+        console.print()
+
+
+def format_deadline(deadline, completed=False):
+    """
+    Formatea la fecha límite con días restantes.
+    """
+    if not deadline:
+        return "[dim]Sin fecha[/dim]"
+    
+    if completed:
+        return f"[dim]{deadline}[/dim]"
+    
+    try:
+        from datetime import date
+        deadline_date = datetime.strptime(deadline, "%d/%m/%Y").date()
+        today = date.today()
+        days_until = (deadline_date - today).days
+        
+        if days_until < 0:
+            return f"[bold red]⚠️  {deadline}\n(Vencida hace {abs(days_until)} día(s))[/bold red]"
+        elif days_until == 0:
+            return f"[bold yellow]⏰ {deadline}\n(¡Hoy!)[/bold yellow]"
+        elif days_until == 1:
+            return f"[bold yellow]⏰ {deadline}\n(Mañana)[/bold yellow]"
+        elif days_until <= 3:
+            return f"[yellow]⏰ {deadline}\n(En {days_until} días)[/yellow]"
+        else:
+            return f"[bright_cyan]{deadline}\n(En {days_until} días)[/bright_cyan]"
+    except:
+        return deadline
+
+
+def sort_tasks_by_priority_and_deadline(tasks):
+    """
+    Ordena las tareas por prioridad y fecha límite.
+    """
+    priority_order = {"alta": 1, "media": 2, "baja": 3}
+    
+    def sort_key(task):
+        priority = task.get("priority", "baja")
+        priority_value = priority_order.get(priority, 4)
+        
+        deadline = task.get("deadline")
+        if deadline:
+            try:
+                deadline_date = datetime.strptime(deadline, "%d/%m/%Y")
+                return (priority_value, deadline_date)
+            except:
+                return (priority_value, datetime.max)
+        else:
+            return (priority_value, datetime.max)
+    
+    return sorted(tasks, key=sort_key)
+
+
+def is_overdue(deadline):
+    """
+    Verifica si una fecha límite está vencida.
+    """
+    if not deadline:
+        return False
+    
+    try:
+        from datetime import date
+        deadline_date = datetime.strptime(deadline, "%d/%m/%Y").date()
+        return deadline_date < date.today()
+    except:
+        return False
+
+
+def show_success_message(message):
+    """
+    Muestra un mensaje de éxito con estilo.
+    """
+    success_panel = Panel(
+        Align.center(f"[bold bright_green]✅ {message}[/bold bright_green]"),
+        border_style="bright_green",
+        padding=(1, 4)
+    )
+    console.print(success_panel)
+
+
+def show_error_message(message):
+    """
+    Muestra un mensaje de error con estilo.
+    """
+    error_panel = Panel(
+        Align.center(f"[bold bright_red]❌ {message}[/bold bright_red]"),
+        border_style="bright_red",
+        padding=(1, 4)
+    )
+    console.print(error_panel)
+
+
+def show_info_message(message):
+    """
+    Muestra un mensaje informativo con estilo.
+    """
+    info_panel = Panel(
+        Align.center(f"[bold bright_cyan]ℹ️  {message}[/bold bright_cyan]"),
+        border_style="bright_cyan",
+        padding=(1, 4)
+    )
+    console.print(info_panel)

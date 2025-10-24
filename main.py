@@ -1,5 +1,5 @@
 from task_manager import load_tasks, save_tasks, add_task, complete_task, delete_task, filter_tasks, search_tasks, edit_task, export_tasks_to_csv, import_tasks_from_csv, filter_urgent_tasks
-from ui import show_menu, show_tasks, show_welcome_panel
+from ui import show_menu, show_tasks, show_welcome_panel, show_dashboard
 from pomodoro import start_pomodoro_for_task, show_pomodoro_stats, configure_pomodoro_times
 from telegram_bot import notify_task_completed, check_and_send_daily_notifications, configure_telegram
 from rich.prompt import Prompt
@@ -30,6 +30,9 @@ def main():
     while True:
         # Mostrar el panel de bienvenida
         show_welcome_panel()
+        
+        # NUEVO: Mostrar dashboard con estadísticas visuales
+        show_dashboard(tasks)
         
         # Filtrar tareas según la configuración actual
         # Por defecto mostramos solo pendientes (no completadas)
