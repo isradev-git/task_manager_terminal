@@ -1,0 +1,12 @@
+# Entorno virtual
+.venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Archivos de configuración local
+telegram_config.json
+
+# Archivos temporales
+*.log

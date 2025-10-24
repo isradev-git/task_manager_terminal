@@ -44,10 +44,8 @@ def show_menu():
     console.print("11. 📊 Estadísticas Pomodoro", style="bold cyan")
     console.print("12. ⚙️  Configurar tiempos", style="bold yellow")
     console.print("─" * 40, style="dim")
-    console.print("13. 📱 Configurar Telegram", style="bold magenta")
-    console.print("─" * 40, style="dim")
-    console.print("14. Salir", style=THEME["info"])
-    return Prompt.ask("Seleccione una opción", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"])
+    console.print("13. Salir", style=THEME["info"])
+    return Prompt.ask("Seleccione una opción", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"])
 
 # Función para verificar si una tarea está vencida
 def is_overdue(deadline_str):

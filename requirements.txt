@@ -1,0 +1,6 @@
+# Dependencias para el Gestor de Tareas
+# 
+# Rich: Librería para crear interfaces de terminal ricas y coloridas
+# Proporciona tablas, paneles, prompts y formato de texto avanzado
+rich==13.7.0
+requests>=2.28.0

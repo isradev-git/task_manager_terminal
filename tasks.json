@@ -1,12 +1,28 @@
 [
     {
-        "description": "Esto es una tarea de prioridad medio",
+        "description": "Desarrollo v1 ContratE de Entreredes",
         "completed": true,
-        "priority": "media"
+        "priority": "alta",
+        "deadline": null
     },
     {
-        "description": "Esto es una tarea de ejemplo",
+        "description": "Mandar mensaje a Ana - Sana por lo de las gu\u00edas de web",
         "completed": true,
-        "priority": "alta"
+        "priority": "media",
+        "deadline": "23/10/2025"
+    },
+    {
+        "description": "Pruebas con ContratE - Entreredes en SiteGround",
+        "completed": false,
+        "priority": "alta",
+        "deadline": "24/10/2025",
+        "pomodoros_completed": 0
+    },
+    {
+        "description": "Bot\u00f3n whatsapp el azAd\u00f3n - a\u00f1adir",
+        "completed": true,
+        "priority": "alta",
+        "deadline": "23/10/2025",
+        "pomodoros_completed": 0
     }
 ]
