@@ -12,17 +12,35 @@
         "deadline": "23/10/2025"
     },
     {
-        "description": "Pruebas con ContratE - Entreredes en SiteGround",
-        "completed": false,
-        "priority": "alta",
-        "deadline": "24/10/2025",
-        "pomodoros_completed": 0
-    },
-    {
         "description": "Bot\u00f3n whatsapp el azAd\u00f3n - a\u00f1adir",
         "completed": true,
         "priority": "alta",
         "deadline": "23/10/2025",
         "pomodoros_completed": 0
+    },
+    {
+        "description": "Hacer video de upgrades de portfolio",
+        "completed": false,
+        "priority": "media",
+        "deadline": "30/10/2025"
+    },
+    {
+        "description": "Crear post dia 30 de octubre",
+        "completed": false,
+        "priority": "media",
+        "deadline": "25/10/2025"
+    },
+    {
+        "description": "Terminar formacion IA + Python",
+        "completed": false,
+        "priority": "alta",
+        "deadline": "25/10/2025",
+        "pomodoros_completed": 1
+    },
+    {
+        "description": "Seguir testeando Atlas para automatizaciones",
+        "completed": true,
+        "priority": "baja",
+        "deadline": "5/11/2025"
     }
 ]
