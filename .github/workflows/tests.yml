@@ -35,3 +35,6 @@ jobs:
 
       - name: Import/export CSV
         run: python test_csv.py
+
+      - name: Los enlaces de la documentacion no estan rotos
+        run: python test_enlaces_docs.py
