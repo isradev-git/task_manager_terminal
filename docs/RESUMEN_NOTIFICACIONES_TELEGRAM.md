@@ -36,20 +36,18 @@ Mensaje: Tareas que ya pasaron su fecha
 
 ## 🔧 Configuración
 
-### **Pre-configurado:**
+### **Qué necesitas:**
 ```
-Bot: @glitchbane_task_bot
-Usuario: @glitchbane (Isra)
-Chat ID: 6009496370
-Estado: Habilitado ✅
+Bot Token: te lo da @BotFather con /newbot
+Chat ID:   te lo da @userinfobot
 ```
 
-### **Archivo creado automáticamente:**
+### **Archivo de configuración (no se versiona):**
 ```json
 telegram_config.json
 {
-    "bot_token": "...",
-    "chat_id": "6009496370",
+    "bot_token": "TU_BOT_TOKEN_DE_BOTFATHER",
+    "chat_id": "TU_CHAT_ID",
     "enabled": true,
     "notifications": {
         "task_completed": true,

@@ -1,0 +1,13 @@
+{
+    "bot_token": "TU_BOT_TOKEN_DE_BOTFATHER",
+    "chat_id": "TU_CHAT_ID",
+    "username": "",
+    "first_name": "",
+    "enabled": true,
+    "notifications": {
+        "task_completed": true,
+        "task_tomorrow": true,
+        "task_today": true,
+        "task_overdue": true
+    }
+}
