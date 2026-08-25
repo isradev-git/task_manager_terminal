@@ -142,8 +142,18 @@ La app funciona sin esto. Si las quieres:
 | `ui.py` | Todo lo visual: panel, dashboard, tablas, ordenación |
 | `pomodoro.py` | Temporizador Pomodoro y estadísticas |
 | `telegram_bot.py` | Envío de notificaciones vía Bot API |
-| `test_no_secrets.py` | Comprueba que no se cuela ningún token en el repo |
-| `docs/` | Documentación detallada de cada subsistema |
+| `test_*.py` | Checks que corren en CI (ver abajo) |
+| `docs/` | Documentación detallada — [índice](docs/README.md) |
+
+Los checks se ejecutan solos en cada pull request:
+
+| Check | Comprueba |
+|---|---|
+| `test_no_secrets.py` | Que no se cuela ningún token de Telegram |
+| `test_no_bare_except.py` | Que no vuelve un `except:` desnudo |
+| `test_tabla_tareas.py` | Que la tabla se ve bien de 70 a 200 columnas |
+| `test_csv.py` | Ida y vuelta de import/export CSV y validación de datos |
+| `test_enlaces_docs.py` | Que ningún enlace del README o de `docs/` está roto |
 
 Los datos viven en `tasks.json` (se crea solo al arrancar, no se versiona).
 
@@ -159,10 +169,15 @@ pomodoros le has dedicado.
 
 ## 📚 Documentación
 
-- [Modo Pomodoro](docs/MODO_POMODORO_GUIA.md)
-- [Notificaciones por Telegram](docs/NOTIFICACIONES_TELEGRAM.md)
-- [Fechas límite](docs/FECHAS_LIMITE.md)
-- [Ordenación de tareas](docs/ORDENAMIENTO_INT.md)
+**[Índice completo en `docs/`](docs/README.md)** — cada tema tiene un resumen de
+uso y una guía larga que además explica la implementación.
+
+| Tema | Resumen | Guía completa |
+|---|---|---|
+| 🍅 Modo Pomodoro | [resumen](docs/RESUMEN_POMODORO.md) | [guía](docs/MODO_POMODORO_GUIA.md) |
+| 📱 Notificaciones por Telegram | [resumen](docs/RESUMEN_NOTIFICACIONES_TELEGRAM.md) | [guía](docs/NOTIFICACIONES_TELEGRAM.md) |
+| 🔀 Ordenación de tareas | [resumen](docs/RESUMEN_ORDENAMIENTO.md) | [guía](docs/ORDENAMIENTO_INT.md) |
+| 📅 Fechas límite | — | [guía](docs/FECHAS_LIMITE.md) |
 
 ---
 
