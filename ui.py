@@ -310,12 +310,15 @@ def show_tasks(tasks, sort_by=None, show_completed=False):
         padding=(0, 1)
     )
     
-    table.add_column("ID", style="dim", width=4, justify="center")
-    table.add_column("", width=2, justify="center")  # Icono estado
-    table.add_column("Tarea", style="bold", width=35)
-    table.add_column("Prioridad", justify="center", width=12)
-    table.add_column("Fecha Límite", justify="center", width=20)
-    table.add_column("🍅", justify="center", width=5)
+    # Solo "Tarea" es flexible. Las demas llevan ancho fijo y no_wrap para que
+    # Rich, cuando la tabla no cabe, recorte la descripcion en vez de comerse
+    # columnas enteras (el icono de estado desaparecia por debajo de 120 cols).
+    table.add_column("ID", style="dim", width=4, justify="center", no_wrap=True)
+    table.add_column("", width=2, justify="center", no_wrap=True)  # Icono estado
+    table.add_column("Tarea", style="bold", min_width=14)
+    table.add_column("Prioridad", justify="center", width=10, no_wrap=True)
+    table.add_column("Fecha Límite", justify="center", width=14, no_wrap=True)
+    table.add_column("🍅", justify="center", width=5, no_wrap=True)
     
     # Variables para separadores
     last_priority = None
