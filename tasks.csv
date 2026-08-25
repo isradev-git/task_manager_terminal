@@ -1,5 +1,5 @@
-ID,Descripci�n,Estado,Prioridad
-1,Esto es una tarea de prioridad alta,True,alta
-2,Esto es una tarea de prioridad medio,True,media
-3,Esto es una tarea de prioridad baja,False,baja
-4,Esto es una tarea de ejemplo,True,alta
+ID,Descripción,Estado,Prioridad,Fecha Límite
+1,Esto es una tarea de prioridad alta,True,alta,Sin fecha
+2,Esto es una tarea de prioridad media,True,media,Sin fecha
+3,Esto es una tarea de prioridad baja,False,baja,Sin fecha
+4,Esto es una tarea de ejemplo con fecha,False,alta,31/12/2026

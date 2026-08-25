@@ -9,6 +9,10 @@ console = Console()
 
 TASKS_FILE = "tasks.json"
 
+# Unica fuente de verdad de las prioridades validas: la usan el prompt de alta,
+# el de edicion y la validacion al importar CSV.
+PRIORITIES = ["alta", "media", "baja"]
+
 # Cargar tareas desde el archivo JSON
 def load_tasks():
     if os.path.exists(TASKS_FILE):
@@ -49,7 +53,7 @@ def add_task(tasks):
     description = Prompt.ask("Ingrese la descripción de la tarea")
     
     # Solicitar la prioridad
-    priority = Prompt.ask("Ingrese la prioridad (alta, media, baja)", choices=["alta", "media", "baja"])
+    priority = Prompt.ask("Ingrese la prioridad (alta, media, baja)", choices=PRIORITIES)
     
     # Preguntar si desea añadir una fecha límite
     add_deadline = Prompt.ask("¿Desea añadir una fecha límite? (s/n)", choices=["s", "n"], default="n")
@@ -318,24 +322,66 @@ def import_tasks_from_csv(tasks):
         return
 
     try:
-        with open("tasks.csv", "r", encoding="utf-8") as file:
+        # utf-8-sig tolera el BOM que mete Excel al guardar un CSV.
+        with open("tasks.csv", "r", encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
-            for row in reader:
-                # Manejamos la fecha límite al importar
-                deadline = row.get("Fecha Límite", "Sin fecha")
-                if deadline == "Sin fecha":
+
+            faltan = {"Descripción", "Estado", "Prioridad"} - set(reader.fieldnames or [])
+            if faltan:
+                console.print(
+                    f"[bold red]tasks.csv no tiene las columnas: {', '.join(sorted(faltan))}"
+                    "[/bold red]"
+                )
+                return
+
+            importadas = 0
+            avisos = 0
+            for num, row in enumerate(reader, start=2):  # 2 = primera fila tras cabecera
+                description = (row.get("Descripción") or "").strip()
+                if not description:
+                    console.print(f"[yellow]Fila {num}: sin descripción, omitida[/yellow]")
+                    avisos += 1
+                    continue
+
+                priority = (row.get("Prioridad") or "").strip().lower()
+                if priority not in PRIORITIES:
+                    console.print(
+                        f"[yellow]Fila {num}: prioridad '{priority}' no válida, "
+                        "se usa 'media'[/yellow]"
+                    )
+                    priority = "media"
+                    avisos += 1
+
+                deadline = (row.get("Fecha Límite") or "").strip()
+                if deadline in ("", "Sin fecha", "None"):
                     deadline = None
-                
-                imported_task = {
-                    "description": row["Descripción"],
-                    "completed": row["Estado"] == "True",
-                    "priority": row["Prioridad"],
+                elif not validate_date(deadline):
+                    console.print(
+                        f"[yellow]Fila {num}: fecha '{deadline}' no válida "
+                        "(DD/MM/YYYY), se importa sin fecha[/yellow]"
+                    )
+                    deadline = None
+                    avisos += 1
+
+                tasks.append({
+                    "description": description,
+                    "completed": (row.get("Estado") or "").strip().lower() == "true",
+                    "priority": priority,
                     "deadline": deadline
-                }
-                tasks.append(imported_task)
-        console.print("[bold green]Tareas importadas desde tasks.csv[/bold green]")
-    except Exception as e:
-        console.print(f"[bold red]Error al importar tareas: {str(e)}[/bold red]")
+                })
+                importadas += 1
+
+        resumen = f"[bold green]{importadas} tarea(s) importadas desde tasks.csv[/bold green]"
+        if avisos:
+            resumen += f" [yellow]({avisos} aviso(s))[/yellow]"
+        console.print(resumen)
+    except UnicodeDecodeError:
+        console.print(
+            "[bold red]tasks.csv no está en UTF-8. Vuelve a guardarlo con "
+            "codificación UTF-8 y reinténtalo.[/bold red]"
+        )
+    except OSError as e:
+        console.print(f"[bold red]Error al leer tasks.csv: {e}[/bold red]")
 
 # Editar una tarea existente
 def edit_task(tasks):
@@ -404,7 +450,7 @@ def edit_task(tasks):
             console.print("[bold green]✅ Descripción actualizada correctamente[/bold green]")
         
         elif edit_choice == "2":
-            new_priority = Prompt.ask("Ingrese la nueva prioridad (alta, media, baja)", choices=["alta", "media", "baja"], default=tasks[original_index]["priority"])
+            new_priority = Prompt.ask("Ingrese la nueva prioridad (alta, media, baja)", choices=PRIORITIES, default=tasks[original_index]["priority"])
             tasks[original_index]["priority"] = new_priority
             console.print("[bold green]✅ Prioridad actualizada correctamente[/bold green]")
         

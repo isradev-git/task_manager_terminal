@@ -32,3 +32,6 @@ jobs:
 
       - name: No hay except desnudos
         run: python test_no_bare_except.py
+
+      - name: Import/export CSV
+        run: python test_csv.py
