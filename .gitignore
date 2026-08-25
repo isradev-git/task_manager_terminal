@@ -5,8 +5,14 @@
 __pycache__/
 *.pyc
 
-# Archivos de configuración local
+# Archivos de configuración local (credenciales)
 telegram_config.json
+
+# Datos personales del usuario, no del proyecto
+tasks.json
+
+# Restos de versiones antiguas
+basurum/
 
 # Archivos temporales
 *.log

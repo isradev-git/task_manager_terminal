@@ -85,24 +85,29 @@ Mensaje:
 
 ## 🔧 Configuración
 
-### **Datos Pre-configurados:**
-```
-Bot Token: 8242520153:AAFAGHC88YFen6KnU6F6IioFWJyADgWz3Q8
-Username Bot: @glitchbane_task_bot
-Chat ID: 6009496370
-Usuario: @glitchbane
-Nombre: Isra
-```
+### **Datos que necesitas:**
 
-### **Configuración Automática:**
-Al ejecutar la aplicación por primera vez, se crea automáticamente el archivo `telegram_config.json`:
+1. **Bot Token** — habla con [@BotFather](https://t.me/BotFather) en Telegram,
+   `/newbot`, y te da un token con la forma `123456789:AAE...`.
+2. **Chat ID** — escríbele a [@userinfobot](https://t.me/userinfobot) y te
+   devuelve tu ID numérico.
+
+> ⚠️ El token es una credencial. No lo subas al repositorio:
+> `telegram_config.json` está en `.gitignore` justamente por eso.
+
+### **Configuración:**
+Copia la plantilla y rellénala con tus datos:
+
+```bash
+cp telegram_config.example.json telegram_config.json
+```
 
 ```json
 {
-    "bot_token": "8242520153:AAFAGHC88YFen6KnU6F6IioFWJyADgWz3Q8",
-    "chat_id": "6009496370",
-    "username": "@glitchbane",
-    "first_name": "Isra",
+    "bot_token": "TU_BOT_TOKEN_DE_BOTFATHER",
+    "chat_id": "TU_CHAT_ID",
+    "username": "",
+    "first_name": "",
     "enabled": true,
     "notifications": {
         "task_completed": true,
@@ -128,9 +133,9 @@ Al ejecutar la aplicación por primera vez, se crea automáticamente el archivo 
 ╰──────────────────────────────╯
 
 Configuración actual:
-Bot Token: 8242520153:AAFAGH...
-Chat ID: 6009496370
-Usuario: @glitchbane
+Bot Token: 123456789:AAE-XY...
+Chat ID: 987654321
+Usuario: @tu_usuario
 Estado: Habilitado
 
 Opciones:
@@ -147,7 +152,7 @@ Seleccione una opción:
 ### **Opción 1: Probar Conexión**
 ```
 Probando conexión...
-✅ Conexión exitosa con @glitchbane_task_bot
+✅ Conexión exitosa con @tu_bot
 ```
 
 ### **Opción 2: Habilitar/Deshabilitar**
@@ -422,7 +427,7 @@ Bot Token + Chat ID = Permiso para enviar mensajes a TI
 ```
 POST https://api.telegram.org/bot{TOKEN}/sendMessage
 Body: {
-    "chat_id": "6009496370",
+    "chat_id": "987654321",
     "text": "Mensaje",
     "parse_mode": "HTML"
 }
@@ -434,7 +439,7 @@ GET https://api.telegram.org/bot{TOKEN}/getMe
 Response: {
     "ok": true,
     "result": {
-        "username": "glitchbane_task_bot",
+        "username": "tu_bot",
         "first_name": "TaskBot"
     }
 }
@@ -607,7 +612,7 @@ Ventaja: Privacidad y personalización
 1. python main.py
 2. Opción 13 → Configurar Telegram
 3. Opción 1 → Probar conexión
-4. Verificar: "✅ Conexión exitosa con @glitchbane_task_bot"
+4. Verificar: "✅ Conexión exitosa con @tu_bot"
 ```
 
 ### **Test 2: Mensaje de Prueba**

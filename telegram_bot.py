@@ -23,12 +23,14 @@ console = Console()
 # Configuración del Bot de Telegram
 TELEGRAM_CONFIG_FILE = "telegram_config.json"
 
-# Configuración por defecto
+# Configuración por defecto.
+# Las credenciales se dejan vacías a propósito: van en telegram_config.json,
+# que está en .gitignore. Copia telegram_config.example.json para empezar.
 DEFAULT_CONFIG = {
-    "bot_token": "8242520153:AAFAGHC88YFen6KnU6F6IioFWJyADgWz3Q8",
-    "chat_id": "6009496370",
-    "username": "@glitchbane",
-    "first_name": "Isra",
+    "bot_token": "",
+    "chat_id": "",
+    "username": "",
+    "first_name": "",
     "enabled": True,
     "notifications": {
         "task_completed": True,
@@ -85,7 +87,11 @@ def send_telegram_message(message, parse_mode="HTML"):
     chat_id = config.get("chat_id")
     
     if not bot_token or not chat_id:
-        console.print("[yellow]⚠️  Configuración de Telegram incompleta[/yellow]")
+        console.print(
+            "[yellow]⚠️  Configuración de Telegram incompleta. "
+            f"Rellena bot_token y chat_id en {TELEGRAM_CONFIG_FILE} "
+            "(plantilla en telegram_config.example.json)[/yellow]"
+        )
         return False
     
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
