@@ -138,8 +138,9 @@ def complete_task(tasks):
             from telegram_bot import notify_task_completed
             pomodoros = task_to_complete.get("pomodoros_completed", 0)
             notify_task_completed(task_to_complete, pomodoros)
-        except:
-            pass  # Si falla, continuar normalmente
+        except Exception as e:
+            # La tarea ya esta completada; que Telegram falle no debe deshacerlo.
+            console.print(f"[yellow]⚠️  No se pudo notificar por Telegram: {e}[/yellow]")
         
         # Mensaje de éxito
         console.clear()

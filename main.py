@@ -24,8 +24,11 @@ def main():
     # NUEVO: Verificar y enviar notificaciones de tareas pendientes al iniciar
     try:
         check_and_send_daily_notifications(tasks)
-    except:
-        pass  # Si falla, continuar normalmente
+    except Exception as e:
+        # Las notificaciones son accesorias: si fallan, la app sigue. Pero
+        # "except Exception" y no "except:", para que Ctrl+C durante el aviso
+        # de arranque siga cancelando en vez de tragarse el KeyboardInterrupt.
+        console.print(f"[yellow]⚠️  No se pudieron enviar las notificaciones: {e}[/yellow]")
 
     while True:
         # Mostrar el panel de bienvenida
