@@ -29,3 +29,6 @@ jobs:
 
       - name: La tabla de tareas se ve bien en cualquier ancho
         run: python test_tabla_tareas.py
+
+      - name: No hay except desnudos
+        run: python test_no_bare_except.py

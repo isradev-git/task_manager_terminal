@@ -48,9 +48,15 @@ def load_telegram_config():
     """
     if os.path.exists(TELEGRAM_CONFIG_FILE):
         try:
-            with open(TELEGRAM_CONFIG_FILE, "r") as f:
+            with open(TELEGRAM_CONFIG_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except (OSError, json.JSONDecodeError) as e:
+            # Antes esto caia en silencio a la config por defecto y el usuario
+            # veia "configuracion incompleta" sin saber que su fichero estaba roto.
+            console.print(
+                f"[red]❌ {TELEGRAM_CONFIG_FILE} no se pudo leer ({e}). "
+                "Usando configuracion por defecto.[/red]"
+            )
             return DEFAULT_CONFIG.copy()
     else:
         # Crear archivo con configuración por defecto
@@ -295,7 +301,7 @@ def notify_tasks_overdue(tasks):
                 deadline_date = datetime.strptime(deadline, "%d/%m/%Y")
                 days_overdue = (datetime.now().date() - deadline_date.date()).days
                 message += f"{i}. {emoji} {description}\n   <i>Vencida hace {days_overdue} día(s)</i>\n\n"
-            except:
+            except (ValueError, TypeError):
                 message += f"{i}. {emoji} {description}\n\n"
         else:
             message += f"{i}. {emoji} {description}\n\n"
@@ -343,7 +349,7 @@ def check_and_send_daily_notifications(tasks):
                 tasks_today.append(task)
             elif deadline_date < today:
                 tasks_overdue.append(task)
-        except:
+        except (ValueError, TypeError):
             continue
     
     # Enviar notificaciones
@@ -391,8 +397,8 @@ def test_telegram_connection():
         console.print("[red]❌ Error al conectar con el bot[/red]")
         return False
         
-    except:
-        console.print("[red]❌ No se pudo conectar con Telegram[/red]")
+    except requests.RequestException as e:
+        console.print(f"[red]❌ No se pudo conectar con Telegram: {e}[/red]")
         return False
 
 

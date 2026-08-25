@@ -125,8 +125,8 @@ class PomodoroTimer:
             try:
                 input()  # Espera a que el usuario presione Enter
                 early_finish = True  # Marca finalización anticipada
-            except:
-                pass
+            except EOFError:
+                pass  # stdin cerrado (p.ej. ejecucion no interactiva)
         
         # Solo capturar input si es sesión de TRABAJO
         if "TRABAJO" in session_type:

@@ -121,8 +121,8 @@ def show_dashboard(tasks):
                 days_until = (deadline_date - today).days
                 if days_until <= 3:
                     urgent_count += 1
-            except:
-                pass
+            except (ValueError, TypeError):
+                pass  # Fecha con formato invalido: no cuenta como urgente
     
     # Crear tarjetas de estadísticas
     cards = []
@@ -442,7 +442,7 @@ def show_urgent_tasks_panel(tasks):
                 overdue_tasks.append(task)
             elif days_until <= 3:
                 urgent_tasks.append(task)
-        except:
+        except (ValueError, TypeError):
             continue
     
     if overdue_tasks or urgent_tasks:
@@ -498,8 +498,8 @@ def format_deadline(deadline, completed=False):
             return f"[yellow]⏰ {deadline}\n(En {days_until} días)[/yellow]"
         else:
             return f"[bright_cyan]{deadline}\n(En {days_until} días)[/bright_cyan]"
-    except:
-        return deadline
+    except (ValueError, TypeError):
+        return deadline  # Formato desconocido: se muestra tal cual
 
 
 def sort_tasks_by_priority_and_deadline(tasks):
@@ -517,8 +517,8 @@ def sort_tasks_by_priority_and_deadline(tasks):
             try:
                 deadline_date = datetime.strptime(deadline, "%d/%m/%Y")
                 return (priority_value, deadline_date)
-            except:
-                return (priority_value, datetime.max)
+            except (ValueError, TypeError):
+                return (priority_value, datetime.max)  # Sin fecha valida: al final
         else:
             return (priority_value, datetime.max)
     
@@ -536,8 +536,8 @@ def is_overdue(deadline):
         from datetime import date
         deadline_date = datetime.strptime(deadline, "%d/%m/%Y").date()
         return deadline_date < date.today()
-    except:
-        return False
+    except (ValueError, TypeError):
+        return False  # Fecha invalida: no se considera vencida
 
 
 def show_success_message(message):
